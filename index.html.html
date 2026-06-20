@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>溫馨毛孩家 - 動物認養網</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 FontAwesome 圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 自訂動畫設定 */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounceIn { 
+            0% { opacity: 0; transform: scale(0.9); } 
+            50% { opacity: 1; transform: scale(1.02); } 
+            100% { transform: scale(1); } 
+        }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+        .animate-bounce-in { animation: bounceIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        /* 輪播圖片轉場效果 */
+        .carousel-bg { transition: background-image 0.5s ease-in-out; }
+        
+        /* 隱藏捲軸但可滾動 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-[#FFFDF7] font-sans text-gray-800 selection:bg-amber-200 min-h-screen flex flex-col">
+
+    <!-- ================= 導覽列 ================= -->
+    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-md shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0">
+            <!-- Logo -->
+            <div class="flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform" onclick="switchView('home')">
+                <div class="bg-amber-400 p-2 rounded-xl text-white shadow-md animate-bounce">
+                    <i class="fa-solid fa-paw text-xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-amber-800 tracking-wide">溫馨毛孩家</h1>
+            </div>
+            
+            <!-- 選單按鈕 -->
+            <div class="flex gap-2 sm:gap-4">
+                <button onclick="switchView('home')" id="nav-home" class="nav-btn flex items-center gap-1 px-4 py-2 rounded-full font-medium transition-all bg-amber-100 text-amber-700">
+                    <i class="fa-solid fa-house hidden sm:block"></i> 首頁
+                </button>
+                <button onclick="switchView('process')" id="nav-process" class="nav-btn flex items-center gap-1 px-4 py-2 rounded-full font-medium transition-all text-gray-600 hover:bg-gray-100">
+                    <i class="fa-solid fa-book-open hidden sm:block"></i> 認養流程
+                </button>
+                <button onclick="switchView('volunteer')" id="nav-volunteer" class="nav-btn flex items-center gap-1 px-4 py-2 rounded-full font-medium transition-all text-gray-600 hover:bg-gray-100">
+                    <i class="fa-solid fa-users hidden sm:block"></i> 志工招募
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ================= 主要內容區 ================= -->
+    <main class="flex-grow">
+        
+        <!-- 1. 首頁視圖 -->
+        <div id="view-home" class="view-section animate-fade-in block">
+            <!-- 英雄區塊 (改為動物照片封面) -->
+            <div class="relative py-24 px-4 mb-12 overflow-hidden shadow-lg">
+                <!-- 封面動物照片 -->
+                <div class="absolute top-0 left-0 w-full h-full z-0">
+                    <img src="https://images.unsplash.com/photo-1544568100-847a948585b9?auto=format&fit=crop&q=80&w=1920" alt="可愛的狗狗與貓咪封面" class="w-full h-full object-cover">
+                    <!-- 漸層覆蓋層，讓文字更清楚 -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-gray-900/80 to-gray-800/50"></div>
+                </div>
+                <div class="max-w-4xl mx-auto text-center relative z-10">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 drop-shadow-xl">
+                        遇見你的命中注定 <i class="fa-solid fa-heart text-red-500 animate-pulse ml-2"></i>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-100 mb-8 max-w-2xl mx-auto drop-shadow-md">
+                        這裡有許多渴望愛的毛小孩，正在等待一個溫暖的家。快來尋找與你有緣的那個牠，讓彼此的生命更加完整。
+                    </p>
+                </div>
+            </div>
+
+            <div class="max-w-6xl mx-auto px-4">
+                <!-- 搜尋與篩選列 -->
+                <div class="bg-white p-4 rounded-2xl shadow-md mb-8 flex flex-col md:flex-row justify-between items-center gap-4 border border-orange-100">
+                    <div class="flex gap-2 w-full md:w-auto overflow-x-auto no-scrollbar pb-2 md:pb-0">
+                        <button onclick="setFilter('all')" id="filter-all" class="filter-btn px-5 py-2.5 rounded-xl font-bold whitespace-nowrap transition-all bg-amber-500 text-white shadow-md transform scale-105">全部毛孩</button>
+                        <button onclick="setFilter('dog')" id="filter-dog" class="filter-btn px-5 py-2.5 rounded-xl font-bold whitespace-nowrap transition-all flex items-center gap-2 bg-gray-100 text-gray-600 hover:bg-gray-200">🐶 找狗狗</button>
+                        <button onclick="setFilter('cat')" id="filter-cat" class="filter-btn px-5 py-2.5 rounded-xl font-bold whitespace-nowrap transition-all flex items-center gap-2 bg-gray-100 text-gray-600 hover:bg-gray-200">🐱 找貓咪</button>
+                    </div>
+
+                    <div class="relative w-full md:w-72 group">
+                        <input type="text" id="search-input" placeholder="搜尋名字或品種..." oninput="handleSearch(event)" class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-shadow group-hover:shadow-sm">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-4 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- 動物列表網格 -->
+                <div id="animal-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-16">
+                    <!-- 動物卡片會由 JS 動態生成插入於此 -->
+                </div>
+
+                <!-- 找不到結果的提示 (預設隱藏) -->
+                <div id="no-results" class="hidden text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100 mb-16">
+                    <i class="fa-solid fa-paw text-6xl text-gray-200 mb-4 mx-auto block"></i>
+                    <h3 class="text-2xl font-bold text-gray-500 mb-2">找不到符合條件的毛孩</h3>
+                    <p class="text-gray-400">試著調整篩選條件或搜尋關鍵字吧！</p>
+                </div>
+
+                <!-- 認養前準備區塊 -->
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-3xl shadow-sm border border-green-100 mb-12 relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-10">
+                        <i class="fa-solid fa-shield-cat text-[200px] text-green-600"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h2 class="text-2xl font-bold text-green-800 mb-6 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-check text-green-600"></i> 認養前準備，您評估好了嗎？
+                        </h2>
+                        <p class="text-green-700/80 mb-6">迎接新生命是一個重大的決定，請在聯絡我們之前，花一分鐘確認以下事項：</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <!-- 檢查清單項目 -->
+                            <div class="flex items-start gap-3 bg-white/60 p-3 rounded-xl">
+                                <div class="bg-green-500 rounded-full p-0.5 mt-0.5 shrink-0 text-white w-5 h-5 flex items-center justify-center"><i class="fa-solid fa-check text-xs"></i></div>
+                                <span class="text-gray-700 font-medium">家人與同住者是否都 100% 同意養寵物？</span>
+                            </div>
+                            <div class="flex items-start gap-3 bg-white/60 p-3 rounded-xl">
+                                <div class="bg-green-500 rounded-full p-0.5 mt-0.5 shrink-0 text-white w-5 h-5 flex items-center justify-center"><i class="fa-solid fa-check text-xs"></i></div>
+                                <span class="text-gray-700 font-medium">租屋處或社區管委會是否允許飼養寵物？</span>
+                            </div>
+                            <div class="flex items-start gap-3 bg-white/60 p-3 rounded-xl">
+                                <div class="bg-green-500 rounded-full p-0.5 mt-0.5 shrink-0 text-white w-5 h-5 flex items-center justify-center"><i class="fa-solid fa-check text-xs"></i></div>
+                                <span class="text-gray-700 font-medium">是否能接受毛孩可能會有掉毛、破壞傢俱的過渡期？</span>
+                            </div>
+                            <div class="flex items-start gap-3 bg-white/60 p-3 rounded-xl">
+                                <div class="bg-green-500 rounded-full p-0.5 mt-0.5 shrink-0 text-white w-5 h-5 flex items-center justify-center"><i class="fa-solid fa-check text-xs"></i></div>
+                                <span class="text-gray-700 font-medium">是否有足夠的經濟能力負擔飼料、醫療及預防針費用？</span>
+                            </div>
+                            <div class="flex items-start gap-3 bg-white/60 p-3 rounded-xl">
+                                <div class="bg-green-500 rounded-full p-0.5 mt-0.5 shrink-0 text-white w-5 h-5 flex items-center justify-center"><i class="fa-solid fa-check text-xs"></i></div>
+                                <span class="text-gray-700 font-medium">每天是否有足夠的時間陪伴、散步與清理環境？</span>
+                            </div>
+                            <div class="flex items-start gap-3 bg-white/60 p-3 rounded-xl">
+                                <div class="bg-green-500 rounded-full p-0.5 mt-0.5 shrink-0 text-white w-5 h-5 flex items-center justify-center"><i class="fa-solid fa-check text-xs"></i></div>
+                                <span class="text-gray-700 font-medium">無論生老病死，是否願意承諾不離不棄，照顧牠一輩子？</span>
+                            </div>
+                        </div>
+                        <p class="mt-6 text-sm text-green-600/70 font-bold">＊如果以上皆為「是」，非常歡迎您開啟認養流程！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 志工招募視圖 -->
+        <div id="view-volunteer" class="view-section animate-fade-in-up hidden">
+            <!-- 志工頁面封面 -->
+            <div class="relative py-20 px-4 mb-12 overflow-hidden shadow-lg">
+                <div class="absolute top-0 left-0 w-full h-full z-0">
+                    <img src="https://images.unsplash.com/photo-1593134257782-e89567b7718a?auto=format&fit=crop&q=80&w=1920" alt="志工與狗狗封面" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-blue-900/75"></div>
+                </div>
+                <div class="text-center relative z-10 max-w-5xl mx-auto py-4">
+                    <h1 class="text-4xl md:text-5xl font-black text-white mb-4 drop-shadow-lg">
+                        加入我們，成為毛孩的守護天使
+                    </h1>
+                    <p class="text-lg text-blue-100 max-w-2xl mx-auto">
+                        即使無法帶牠們回家，您依然可以給予溫暖。我們需要充滿熱忱的您，一起參與改變牠們生命的旅程。
+                    </p>
+                </div>
+            </div>
+
+            <div class="max-w-5xl mx-auto px-4 pb-12">
+                <div class="grid md:grid-cols-2 gap-8 mb-16">
+                    <div class="bg-white p-8 rounded-3xl shadow-lg border-t-8 border-blue-400 hover:-translate-y-1 transition-transform">
+                        <div class="bg-blue-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-blue-600 text-2xl">
+                            <i class="fa-solid fa-hand-holding-heart"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold mb-4">日常照護志工</h2>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            協助清理犬舍貓屋、餵食、洗澡、帶狗狗散步曬太陽，以及給予予毛孩們最需要的陪伴與撫摸。幫助牠們重新建立對人類的信任。
+                        </p>
+                        <ul class="space-y-2 text-sm text-gray-500 font-medium">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-green-500"></i> 需年滿 18 歲</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-green-500"></i> 每月至少可排班 2 次</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-green-500"></i> 需參加半天的新手志工培訓</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-3xl shadow-lg border-t-8 border-teal-400 hover:-translate-y-1 transition-transform">
+                        <div class="bg-teal-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-teal-600 text-2xl">
+                            <i class="fa-solid fa-camera-retro"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold mb-4">活動推廣志工</h2>
+                        <p class="text-gray-600 mb-6 leading-relaxed">
+                            在假日舉辦的送養會中協助引導民眾、介紹毛孩個性，或是具備攝影、美編專長，協助拍攝毛孩沙龍照、製作送養文宣，增加牠們曝光的機會。
+                        </p>
+                        <ul class="space-y-2 text-sm text-gray-500 font-medium">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-green-500"></i> 活潑外向、具溝通能力佳</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-green-500"></i> 具備基礎攝影或美編能力者佳(非必備)</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-green-500"></i> 假日可配合出勤</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-blue-50 to-teal-50 rounded-3xl p-8 border border-blue-100 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
+                    <div class="w-full md:w-3/5 text-center md:text-left">
+                        <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">準備好加入我們了嗎？</h3>
+                        <p class="text-gray-600 mb-8 max-w-xl mx-auto md:mx-0 leading-relaxed text-lg">
+                            請點擊下方按鈕填寫志工報名表，我們會盡快與您聯繫，並安排最近期的志工培訓說明會。一起給毛孩們一個重獲幸福的機會！
+                        </p>
+                        <button class="bg-blue-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-blue-700 hover:shadow-lg transition-all active:scale-95 flex items-center gap-2 mx-auto md:mx-0">
+                            填寫志工報名表 <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="w-full md:w-2/5 flex justify-center relative mt-6 md:mt-0">
+                        <!-- 裝飾用背景光暈 -->
+                        <div class="absolute inset-0 bg-blue-300/40 rounded-full blur-3xl transform scale-75"></div>
+                        <!-- 右側真實動物照片 -->
+                        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=800" alt="可愛期待的狗狗" class="relative z-10 w-full max-w-[300px] h-auto object-cover rounded-2xl shadow-xl transform rotate-3 hover:rotate-0 transition-transform duration-300 border-4 border-white">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 認養流程視圖 -->
+        <div id="view-process" class="view-section animate-fade-in-up hidden">
+            <!-- 流程頁面封面 -->
+            <div class="relative py-20 px-4 mb-12 overflow-hidden shadow-lg">
+                <div class="absolute top-0 left-0 w-full h-full z-0">
+                    <img src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&q=80&w=1920" alt="溫馨認養封面" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-amber-900/75"></div>
+                </div>
+                <div class="text-center relative z-10 max-w-4xl mx-auto py-4">
+                    <h1 class="text-4xl md:text-5xl font-black text-white mb-4 drop-shadow-lg">
+                        認養流程說明
+                    </h1>
+                    <p class="text-lg text-amber-100 max-w-2xl mx-auto">
+                        嚴格的流程不是為了刁難，而是為了保障毛孩不再受到二次傷害，請給予我們多一點耐心與包容。
+                    </p>
+                </div>
+            </div>
+
+            <div class="max-w-4xl mx-auto px-4 pb-12">
+                <div class="space-y-8 relative">
+                    <!-- 連結線 (桌面版) -->
+                    <div class="absolute left-8 md:left-1/2 top-4 bottom-4 w-1 bg-gray-200 -translate-x-1/2 hidden md:block rounded-full"></div>
+
+                    <!-- 步驟 1 -->
+                    <div class="flex flex-col md:flex-row items-center gap-6 relative z-10">
+                        <div class="w-full md:w-1/2 flex md:justify-end">
+                            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow w-full md:w-5/6">
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">1. 線上尋找有緣毛孩</h3>
+                                <p class="text-gray-600 leading-relaxed">在我們的網站上瀏覽毛孩資訊，找到心儀的對象，並詳閱「認養前準備」評估自身狀況。</p>
+                            </div>
+                        </div>
+                        <div class="hidden md:flex shrink-0 w-16 h-16 rounded-full bg-white shadow-md border-4 border-gray-50 items-center justify-center relative z-20">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center bg-pink-100 text-pink-600 text-xl"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        </div>
+                        <div class="w-full md:w-1/2"></div>
+                    </div>
+
+                    <!-- 步驟 2 -->
+                    <div class="flex flex-col md:flex-row-reverse items-center gap-6 relative z-10">
+                        <div class="w-full md:w-1/2 flex md:justify-start">
+                            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow w-full md:w-5/6">
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">2. 填寫認養申請書</h3>
+                                <p class="text-gray-600 leading-relaxed">點擊「我想認養」取得聯絡資訊，向我們索取並誠實填寫線上認養問卷。</p>
+                            </div>
+                        </div>
+                        <div class="hidden md:flex shrink-0 w-16 h-16 rounded-full bg-white shadow-md border-4 border-gray-50 items-center justify-center relative z-20">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center bg-purple-100 text-purple-600 text-xl"><i class="fa-regular fa-envelope"></i></div>
+                        </div>
+                        <div class="w-full md:w-1/2"></div>
+                    </div>
+
+                    <!-- 步驟 3 -->
+                    <div class="flex flex-col md:flex-row items-center gap-6 relative z-10">
+                        <div class="w-full md:w-1/2 flex md:justify-end">
+                            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow w-full md:w-5/6">
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">3. 預約互動與面談</h3>
+                                <p class="text-gray-600 leading-relaxed">審核問卷通過後，志工會與您聯繫，安排時間到現場與毛孩實際互動，並進行面談。</p>
+                            </div>
+                        </div>
+                        <div class="hidden md:flex shrink-0 w-16 h-16 rounded-full bg-white shadow-md border-4 border-gray-50 items-center justify-center relative z-20">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center bg-indigo-100 text-indigo-600 text-xl"><i class="fa-solid fa-users"></i></div>
+                        </div>
+                        <div class="w-full md:w-1/2"></div>
+                    </div>
+
+                    <!-- 步驟 4 -->
+                    <div class="flex flex-col md:flex-row-reverse items-center gap-6 relative z-10">
+                        <div class="w-full md:w-1/2 flex md:justify-start">
+                            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow w-full md:w-5/6">
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">4. 環境評估</h3>
+                                <p class="text-gray-600 leading-relaxed">為確保毛孩未來的安全，我們會需請您提供居家環境照片，或由志工進行實地家訪。</p>
+                            </div>
+                        </div>
+                        <div class="hidden md:flex shrink-0 w-16 h-16 rounded-full bg-white shadow-md border-4 border-gray-50 items-center justify-center relative z-20">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center bg-blue-100 text-blue-600 text-xl"><i class="fa-solid fa-house-chimney"></i></div>
+                        </div>
+                        <div class="w-full md:w-1/2"></div>
+                    </div>
+
+                    <!-- 步驟 5 -->
+                    <div class="flex flex-col md:flex-row items-center gap-6 relative z-10">
+                        <div class="w-full md:w-1/2 flex md:justify-end">
+                            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow w-full md:w-5/6">
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">5. 簽署協議書與帶回</h3>
+                                <p class="text-gray-600 leading-relaxed">確認一切就緒後，簽署正式認養協議書，準備好牽繩/外出籠，開心帶毛孩回家！</p>
+                            </div>
+                        </div>
+                        <div class="hidden md:flex shrink-0 w-16 h-16 rounded-full bg-white shadow-md border-4 border-gray-50 items-center justify-center relative z-20">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center bg-green-100 text-green-600 text-xl"><i class="fa-solid fa-circle-check"></i></div>
+                        </div>
+                        <div class="w-full md:w-1/2"></div>
+                    </div>
+                </div>
+
+                <div class="mt-16 bg-red-50 p-6 rounded-2xl border border-red-100 flex items-start gap-4">
+                    <i class="fa-solid fa-circle-exclamation text-red-500 text-2xl mt-1 shrink-0"></i>
+                    <div>
+                        <h4 class="font-bold text-red-800 mb-1">注意事項</h4>
+                        <p class="text-sm text-red-700/80">
+                            送養方保有最終決定權。若在評估過程中發現不適合之處，我們有權隨時中止認養流程，敬請見諒。認養需年滿20歲，若未滿20歲需法定代理人陪同並同意。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ================= 頁尾 ================= -->
+    <footer class="bg-amber-800 text-amber-50 mt-auto py-12 border-t-8 border-amber-400">
+        <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="fa-solid fa-paw text-2xl text-amber-300"></i>
+                    <h2 class="text-xl font-bold">溫馨毛孩家</h2>
+                </div>
+                <p class="text-amber-200/80 leading-relaxed">我們致力於為每一個流浪的生命找到溫暖的歸宿。以領養代替購買，給他們一個重生的機會。</p>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold mb-4 border-b border-amber-700 pb-2">聯絡我們</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-phone text-amber-300 w-5"></i> 04-2345-6789</li>
+                    <li class="flex items-center gap-3"><i class="fa-solid fa-envelope text-amber-300 w-5"></i> adopt@warmpaws.tw</li>
+                    <li class="flex items-start gap-3"><i class="fa-solid fa-location-dot text-amber-300 w-5 mt-1"></i> <div>台中市北屯區溫馨路123號<br><span class="text-sm opacity-80">(請先預約再前往)</span></div></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold mb-4 border-b border-amber-700 pb-2">開放時間</h3>
+                <ul class="space-y-2 text-amber-200/80">
+                    <li>週二至週五: 14:00 - 19:00</li>
+                    <li>週六、週日: 11:00 - 20:00</li>
+                    <li class="text-amber-300 font-medium mt-2">週一固定休館 (進行場地清潔消毒)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="text-center mt-12 text-sm text-amber-400/60">
+            © 2026 溫馨毛孩家 All Rights Reserved.
+        </div>
+    </footer>
+
+    <!-- ================= 認養彈出視窗 ================= -->
+    <div id="modal-backdrop" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/70 backdrop-blur-sm hidden">
+        <div id="modal-content" class="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl transform transition-all relative">
+            <!-- 關閉按鈕 -->
+            <button onclick="closeModal()" class="absolute top-4 right-4 p-2 w-10 h-10 flex items-center justify-center bg-white/50 hover:bg-white rounded-full text-gray-800 transition-colors z-20 backdrop-blur-md shadow-sm">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <!-- 頂部裝飾區 (改為所選毛孩的照片封面) -->
+            <div class="relative p-10 text-center overflow-hidden">
+                <div class="absolute inset-0 w-full h-full z-0">
+                    <img id="modal-cover-img" src="" alt="毛孩封面" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-gray-900/40"></div>
+                </div>
+                <div class="relative z-10 pt-4">
+                    <h2 class="text-3xl font-black text-white mb-3 drop-shadow-lg">您選擇了溫暖！</h2>
+                    <p class="text-gray-200 text-lg drop-shadow-md">
+                        目前正在詢問：<span id="modal-animal-name" class="font-bold bg-amber-500 text-white px-4 py-1.5 rounded-full ml-1 shadow-md"></span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- 內容區 -->
+            <div class="px-8 pb-8">
+                <div class="text-center mb-6">
+                    <div class="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-white shadow-lg -mt-12 relative z-20 bg-gray-100">
+                        <img id="modal-animal-img" src="" alt="animal" class="w-full h-full object-cover" />
+                    </div>
+                    <p class="text-gray-600 leading-relaxed mt-4">
+                        太棒了！<span id="modal-animal-name-text" class="font-bold text-amber-600"></span> 離溫暖的家又更近了一步。請透過以下方式與我們聯繫，並告知您想詢問這位可愛的<span id="modal-animal-breed"></span>。
+                    </p>
+                </div>
+
+                <div class="bg-gray-50 rounded-2xl p-6 space-y-4 border border-gray-100">
+                    <div class="flex items-center gap-4 text-gray-700">
+                        <div class="bg-amber-100 p-3 w-11 h-11 flex justify-center items-center rounded-full text-amber-600"><i class="fa-solid fa-phone"></i></div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium mb-0.5">認養專線</p>
+                            <p class="font-bold text-lg">04-2345-6789</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-4 text-gray-700">
+                        <div class="bg-amber-100 p-3 w-11 h-11 flex justify-center items-center rounded-full text-amber-600"><i class="fa-solid fa-envelope"></i></div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium mb-0.5">電子信箱</p>
+                            <p class="font-bold text-lg">adopt@warmpaws.tw</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 text-gray-700">
+                        <div class="bg-amber-100 p-3 w-11 h-11 flex justify-center items-center rounded-full text-amber-600"><i class="fa-solid fa-location-dot"></i></div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium mb-0.5">園區地址 (請先來電預約)</p>
+                            <p class="font-bold">台中市北屯區溫馨路123號</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="closeModal()" class="w-full mt-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors">
+                    我記下了，關閉視窗
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= JavaScript 邏輯 ================= -->
+    <script>
+        // 1. 模擬資料 (10隻狗, 10隻貓)
+        const mockAnimals = [
+            // 狗狗區
+            { id: 'd1', type: 'dog', name: '波霸', breed: '黃金獵犬', age: '2歲', gender: '公', personality: '親人愛撒嬌、活力充沛，是個快樂的大男孩。', health: '已結紮、定期施打疫苗、健康狀況良好。', images: ['https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1605553140505-df1b9979cc36?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'd2', type: 'dog', name: '麻糬', breed: '柴犬', age: '3歲', gender: '母', personality: '有點傲嬌但熟了會翻肚子，喜歡散步。', health: '已結紮、有晶片、牙齒剛洗過。', images: ['https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'd3', type: 'dog', name: '可樂', breed: '貴賓犬', age: '1歲', gender: '公', personality: '非常聰明、學習力強，需要多陪伴。', health: '已結紮、狂犬病疫苗已施打。', images: ['https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1604916287784-c324202b3205?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'd4', type: 'dog', name: '胖丁', breed: '法國鬥牛犬', age: '4歲', gender: '公', personality: '慵懶悠閒，喜歡睡覺打呼嚕，適合安靜的家庭。', health: '已結紮、皮膚狀況穩定，需注意散熱。', images: ['https://images.unsplash.com/photo-1583512603805-3cc6b41f3edb?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'd5', type: 'dog', name: '球球', breed: '博美犬', age: '5個月', gender: '母', personality: '活潑好動、好奇心重，需要耐心教導規矩。', health: '幼犬疫苗施打中、尚未結紮。', images: ['https://images.unsplash.com/photo-1596525187747-0b12bc1209b5?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1558929996-ebf5fdb88b2a?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1601979031925-424e53b6caaa?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'd6', type: 'dog', name: '短短', breed: '柯基犬', age: '2.5歲', gender: '公', personality: '愛吃、親人、喜歡跟屁股跑，是個小吃貨。', health: '已結紮、體重需稍微控制。', images: ['https://images.unsplash.com/photo-1519098901909-b1553a1190af?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1535909339361-ef56e179d637?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1554692911-30d9db8890ff?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'd7', type: 'dog', name: '露西', breed: '米克斯', age: '8個月', gender: '母', personality: '害羞但溫柔，需要時間建立信任，一旦熟了非常忠心。', health: '已結紮、完成三劑疫苗。', images: ['https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1544568100-847a948585b9?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1525253086316-d0c936c814f8?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'd8', type: 'dog', name: '哈利', breed: '哈士奇', age: '3歲', gender: '公', personality: '戲精、話多、活動力超強，需要每天大量運動。', health: '已結紮、身體強壯。', images: ['https://images.unsplash.com/photo-1605568420105-beb28f52ed7f?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1582053433976-25c00369fc93?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'd9', type: 'dog', name: '貝貝', breed: '馬爾濟斯', age: '6歲', gender: '母', personality: '文靜乖巧、喜歡討摸摸，適合長輩陪伴。', health: '已結紮、有輕微白內障但不影響生活。', images: ['https://images.unsplash.com/photo-1514984879728-be0aff753264?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1585559700398-1385b3a8aeb6?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1596791168194-4d834927ed1d?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'd10', type: 'dog', name: '大黑', breed: '台灣犬', age: '4歲', gender: '公', personality: '警戒心較強，但對主人極度忠誠，是優良的看門犬。', health: '已結紮、非常健康、四肢發達。', images: ['https://images.unsplash.com/photo-1559440165-c65de35515c6?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1560743641-3914f2c45636?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1548681528-6a5c45b66b42?auto=format&fit=crop&q=80&w=800'] },
+
+            // 貓咪區
+            { id: 'c1', type: 'cat', name: '橘子', breed: '米克斯(橘貓)', age: '2歲', gender: '公', personality: '非常貪吃、脾氣好、隨便摸都會呼嚕。', health: '已結紮、過胖需減肥。', images: ['https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1529778456100-36a59d9c2fa6?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'c2', type: 'cat', name: '雪球', breed: '布偶貓', age: '1.5歲', gender: '母', personality: '溫柔、像娃娃一樣任人抱，非常依賴人類。', health: '已結紮、腸胃較敏感。', images: ['https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'c3', type: 'cat', name: '黑豹', breed: '孟買貓', age: '3歲', gender: '公', personality: '外表帥氣但內心是個小奶貓，喜歡窩在人腿上。', health: '已結紮、健康狀況極佳。', images: ['https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1516139008210-96e45dcb4cad?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'c4', type: 'cat', name: '斑斑', breed: '美國短毛貓', age: '4歲', gender: '母', personality: '獨立自主、會自己找樂子，偶爾才來撒嬌。', health: '已結紮、無特殊疾病。', images: ['https://images.unsplash.com/photo-1501820488136-72669149e0d4?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1513245543132-31f507417b26?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'c5', type: 'cat', name: '奶茶', breed: '英國短毛貓', age: '2歲', gender: '公', personality: '圓臉大眼，個性憨厚，喜歡靜靜待在旁邊看著你。', health: '已結紮、定期驅蟲。', images: ['https://images.unsplash.com/photo-1503777119540-ce54b422baff?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1511044568932-338cba0ad803?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1526336179256-1347bdb255ee?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'c6', type: 'cat', name: '芝麻', breed: '賓士貓', age: '1歲', gender: '公', personality: '神經大條、喜歡玩逗貓棒，常常做出爆笑舉動。', health: '已結紮、愛滋白血快篩陰性。', images: ['https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1513622470522-26cb3ca0a8b9?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1500856056008-859079534e9e?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'c7', type: 'cat', name: '露娜', breed: '波斯貓', age: '5歲', gender: '母', personality: '氣質高雅、動作優雅，需要每天梳毛打理。', health: '已結紮、需注意腎臟保養。', images: ['https://images.unsplash.com/photo-1510130387422-82ea904dfddf?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1508921869811-00263f33eb9d?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1506891536236-3e0789256d33?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'c8', type: 'cat', name: '跳跳', breed: '豹貓', age: '2歲', gender: '公', personality: '精力旺盛、喜歡攀爬高處，需要足夠的垂直空間。', health: '已結紮、非常靈活健康。', images: ['https://images.unsplash.com/photo-1472491235688-bdc81a63246e?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1555502621-e77242137ea6?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'c9', type: 'cat', name: '喵喵', breed: '暹羅貓', age: '3歲', gender: '母', personality: '非常愛講話、喜歡跟人對答，佔有慾稍強。', health: '已結紮、一切正常。', images: ['https://images.unsplash.com/photo-1513245543132-31f507417b26?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1494256997604-768d1f608cac?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1504595403659-9088ce801e29?auto=format&fit=crop&q=80&w=800'] },
+            { id: 'c10', type: 'cat', name: '無毛', breed: '斯芬克斯貓', age: '4歲', gender: '公', personality: '極度親人、像小狗一樣會黏著主人，需要特別保暖。', health: '已結紮、需定期清潔皮膚分泌物。', images: ['https://images.unsplash.com/photo-1520315342629-6ea920342047?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1568214379698-8aeb8fea0c06?auto=format&fit=crop&q=80&w=800', 'https://images.unsplash.com/photo-1501820488136-72669149e0d4?auto=format&fit=crop&q=80&w=800'] },
+        ];
+
+        // 狀態變數
+        let currentFilter = 'all';
+        let currentSearch = '';
+        const animalImagesMap = {}; // 用來儲存每隻動物的照片陣列供輪播使用
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 將圖片資料存入 Map 方便輪播讀取
+            mockAnimals.forEach(animal => {
+                animalImagesMap[animal.id] = animal.images;
+            });
+            renderAnimals();
+        });
+
+        // 2. 視圖切換邏輯 (首頁/流程/志工)
+        function switchView(viewName) {
+            // 隱藏所有視圖
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            });
+            
+            // 顯示目標視圖
+            const targetView = document.getElementById(`view-${viewName}`);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+                targetView.classList.add('block');
+            }
+
+            // 更新導航按鈕樣式
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn flex items-center gap-1 px-4 py-2 rounded-full font-medium transition-all text-gray-600 hover:bg-gray-100';
+            });
+            
+            const activeBtn = document.getElementById(`nav-${viewName}`);
+            if (activeBtn) {
+                activeBtn.className = 'nav-btn flex items-center gap-1 px-4 py-2 rounded-full font-medium transition-all bg-amber-100 text-amber-700';
+            }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 3. 篩選與搜尋邏輯
+        function setFilter(type) {
+            currentFilter = type;
+            
+            // 更新按鈕樣式
+            const allBtns = [
+                { id: 'filter-all', activeClass: 'bg-amber-500 text-white shadow-md transform scale-105' },
+                { id: 'filter-dog', activeClass: 'bg-orange-400 text-white shadow-md transform scale-105' },
+                { id: 'filter-cat', activeClass: 'bg-yellow-500 text-white shadow-md transform scale-105' }
+            ];
+
+            allBtns.forEach(btnInfo => {
+                const btn = document.getElementById(btnInfo.id);
+                // 重置為預設
+                btn.className = btn.className.replace(/bg-\w+-\d+ text-white shadow-md transform scale-105/g, '');
+                if(!btn.className.includes('bg-gray-100')) {
+                    btn.className += ' bg-gray-100 text-gray-600 hover:bg-gray-200';
+                }
+            });
+
+            // 套用新樣式
+            const activeBtnInfo = allBtns.find(b => b.id === `filter-${type}`);
+            const activeBtn = document.getElementById(`filter-${type}`);
+            activeBtn.className = activeBtn.className.replace('bg-gray-100 text-gray-600 hover:bg-gray-200', '');
+            activeBtn.className += ` ${activeBtnInfo.activeClass}`;
+
+            renderAnimals();
+        }
+
+        function handleSearch(event) {
+            currentSearch = event.target.value.toLowerCase();
+            renderAnimals();
+        }
+
+        // 4. 渲染動物卡片
+        function renderAnimals() {
+            const grid = document.getElementById('animal-grid');
+            const noResultsMsg = document.getElementById('no-results');
+            
+            // 過濾資料
+            const filtered = mockAnimals.filter(animal => {
+                const matchType = currentFilter === 'all' || animal.type === currentFilter;
+                const matchSearch = animal.name.toLowerCase().includes(currentSearch) || 
+                                    animal.breed.toLowerCase().includes(currentSearch);
+                return matchType && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                noResultsMsg.classList.remove('hidden');
+                return;
+            } else {
+                noResultsMsg.classList.add('hidden');
+            }
+
+            // 產生 HTML
+            grid.innerHTML = filtered.map(animal => {
+                const genderBadge = animal.gender === '公' 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'bg-pink-100 text-pink-700';
+
+                // 產生輪播點點
+                const dots = animal.images.map((_, idx) => 
+                    `<div class="dot-${animal.id}-${idx} w-2 h-2 rounded-full transition-all ${idx === 0 ? 'bg-amber-500 w-4' : 'bg-white/60'}"></div>`
+                ).join('');
+
+                return `
+                <div class="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-orange-50 group flex flex-col animate-fade-in-up">
+                    
+                    <!-- 輪播元件 -->
+                    <div class="relative h-64 w-full overflow-hidden bg-gray-100">
+                        <div id="carousel-img-${animal.id}"
+                             style="background-image: url('${animal.images[0]}')"
+                             class="carousel-bg w-full h-full bg-center bg-cover bg-no-repeat transition-transform duration-500 group-hover:scale-110"
+                             data-current-index="0"
+                             data-animal-id="${animal.id}">
+                        </div>
+                        
+                        <!-- 導航按鈕 -->
+                        <div class="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <button onclick="prevSlide('${animal.id}', event)" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/70 text-gray-800 hover:bg-white transition shadow-md">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <button onclick="nextSlide('${animal.id}', event)" class="w-8 h-8 flex items-center justify-center rounded-full bg-white/70 text-gray-800 hover:bg-white transition shadow-md">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+
+                        <!-- 指示小圓點 -->
+                        <div class="absolute bottom-2 left-0 right-0 flex justify-center gap-2" id="dots-${animal.id}">
+                            ${dots}
+                        </div>
+                    </div>
+                    
+                    <!-- 內容區 -->
+                    <div class="p-5 flex-1 flex flex-col">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-800">${animal.name}</h3>
+                                <p class="text-amber-600 font-medium text-sm mt-1 bg-amber-50 inline-block px-2 py-0.5 rounded-md">${animal.breed}</p>
+                            </div>
+                            <span class="px-2 py-1 rounded-lg text-xs font-bold ${genderBadge}">
+                                ${animal.gender}
+                            </span>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4 text-sm text-gray-600 flex-1">
+                            <p class="flex items-center gap-2"><i class="fa-regular fa-calendar text-gray-400 w-4"></i> ${animal.age}</p>
+                            <p class="flex items-start gap-2"><i class="fa-regular fa-user text-gray-400 mt-1 w-4 shrink-0"></i> <span class="line-clamp-2">${animal.personality}</span></p>
+                            <p class="flex items-start gap-2"><i class="fa-solid fa-notes-medical text-gray-400 mt-1 w-4 shrink-0"></i> <span class="line-clamp-2">${animal.health}</span></p>
+                        </div>
+                        
+                        <button onclick="openModal('${animal.id}')" class="w-full mt-auto py-3 rounded-xl font-bold flex justify-center items-center gap-2 transition-all bg-gradient-to-r from-amber-400 to-orange-400 text-white hover:from-amber-500 hover:to-orange-500 shadow-md hover:shadow-lg active:scale-95">
+                            <i class="fa-solid fa-heart group-hover:animate-ping"></i> 我想認養 ${animal.name}
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // 5. 輪播控制邏輯
+        function prevSlide(animalId, event) {
+            event.stopPropagation();
+            updateSlide(animalId, -1);
+        }
+
+        function nextSlide(animalId, event) {
+            event.stopPropagation();
+            updateSlide(animalId, 1);
+        }
+
+        function updateSlide(animalId, direction) {
+            const imgElement = document.getElementById(`carousel-img-${animalId}`);
+            const images = animalImagesMap[animalId];
+            let currentIndex = parseInt(imgElement.getAttribute('data-current-index'));
+            
+            // 計算新索引
+            let newIndex = currentIndex + direction;
+            if (newIndex < 0) newIndex = images.length - 1;
+            if (newIndex >= images.length) newIndex = 0;
+            
+            // 更新圖片與資料
+            imgElement.style.backgroundImage = `url('${images[newIndex]}')`;
+            imgElement.setAttribute('data-current-index', newIndex);
+
+            // 更新圓點樣式
+            const dotsContainer = document.getElementById(`dots-${animalId}`);
+            if (dotsContainer) {
+                Array.from(dotsContainer.children).forEach((dot, idx) => {
+                    if (idx === newIndex) {
+                        dot.className = `dot-${animalId}-${idx} w-4 h-2 rounded-full transition-all bg-amber-500`;
+                    } else {
+                        dot.className = `dot-${animalId}-${idx} w-2 h-2 rounded-full transition-all bg-white/60`;
+                    }
+                });
+            }
+        }
+
+        // 6. 彈出視窗(Modal)邏輯
+        function openModal(animalId) {
+            const animal = mockAnimals.find(a => a.id === animalId);
+            if (!animal) return;
+
+            // 填充資料
+            document.getElementById('modal-animal-name').textContent = animal.name;
+            document.getElementById('modal-animal-name-text').textContent = animal.name;
+            document.getElementById('modal-animal-breed').textContent = animal.breed;
+            document.getElementById('modal-animal-img').src = animal.images[0];
+            document.getElementById('modal-cover-img').src = animal.images[0]; // 將照片設為 Modal 封面背景
+
+            // 顯示視窗並套用動畫
+            const backdrop = document.getElementById('modal-backdrop');
+            const content = document.getElementById('modal-content');
+            
+            backdrop.classList.remove('hidden');
+            // 重置動畫
+            content.classList.remove('animate-bounce-in');
+            void content.offsetWidth; // 觸發 reflow 讓動畫重置生效
+            content.classList.add('animate-bounce-in');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-backdrop').classList.add('hidden');
+        }
+
+        // 點擊背景關閉 Modal
+        document.getElementById('modal-backdrop').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+    </script>
+</body>
+</html>
